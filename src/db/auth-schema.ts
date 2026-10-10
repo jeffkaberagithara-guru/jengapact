@@ -1,5 +1,14 @@
 import { sql } from "drizzle-orm";
-import { boolean, index, text, timestamp, uniqueIndex, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+  varchar,
+} from "drizzle-orm/pg-core";
+import { randomUUID } from "node:crypto";
 import { appSchema } from "./pg-schema";
 
 /**
@@ -16,6 +25,11 @@ import { appSchema } from "./pg-schema";
  * default is a 32-character string that would fail to insert into a `uuid`
  * column at runtime.
  *
+ * With `generateId: "uuid"` on Postgres, better-auth expects the column to
+ * carry the default itself. `$defaultFn` fills the id at insert time in the
+ * application, so the hand-written migration (which has no `gen_random_uuid()`
+ * default) keeps working without a schema change.
+ *
  * FIELD NAMES ARE FIXED BY BETTER-AUTH, not by house style. Renaming a
  * TypeScript key here breaks authentication with no compile-time error, so
  * `auth-schema.test.ts` pins the key set.
@@ -24,15 +38,21 @@ import { appSchema } from "./pg-schema";
  * names (`user`, `session`, `account`, `verification`) in `authSchema` below.
  */
 
+const defaultUuid = () => randomUUID();
+
 const authTimestamps = {
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 };
 
 export const authUsers = appSchema.table(
   "auth_users",
   {
-    id: uuid("id").primaryKey(),
+    id: uuid("id").primaryKey().$defaultFn(defaultUuid),
     name: text("name").notNull(),
     email: varchar("email", { length: 320 }).notNull(),
     emailVerified: boolean("email_verified").notNull().default(false),
@@ -45,7 +65,7 @@ export const authUsers = appSchema.table(
 export const authSessions = appSchema.table(
   "auth_sessions",
   {
-    id: uuid("id").primaryKey(),
+    id: uuid("id").primaryKey().$defaultFn(defaultUuid),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     token: varchar("token", { length: 255 }).notNull(),
     ipAddress: varchar("ip_address", { length: 45 }),
@@ -65,7 +85,7 @@ export const authSessions = appSchema.table(
 export const authAccounts = appSchema.table(
   "auth_accounts",
   {
-    id: uuid("id").primaryKey(),
+    id: uuid("id").primaryKey().$defaultFn(defaultUuid),
     accountId: varchar("account_id", { length: 255 }).notNull(),
     providerId: varchar("provider_id", { length: 255 }).notNull(),
     userId: uuid("user_id")
@@ -74,15 +94,22 @@ export const authAccounts = appSchema.table(
     accessToken: text("access_token"),
     refreshToken: text("refresh_token"),
     idToken: text("id_token"),
-    accessTokenExpiresAt: timestamp("access_token_expires_at", { withTimezone: true }),
-    refreshTokenExpiresAt: timestamp("refresh_token_expires_at", { withTimezone: true }),
+    accessTokenExpiresAt: timestamp("access_token_expires_at", {
+      withTimezone: true,
+    }),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at", {
+      withTimezone: true,
+    }),
     scope: text("scope"),
     /** Password hash. Never returned by any read path. */
     password: text("password"),
     ...authTimestamps,
   },
   (t) => [
-    uniqueIndex("auth_accounts_provider_account_uniq").on(t.providerId, t.accountId),
+    uniqueIndex("auth_accounts_provider_account_uniq").on(
+      t.providerId,
+      t.accountId,
+    ),
     index("auth_accounts_user_idx").on(t.userId),
   ],
 );
@@ -90,7 +117,7 @@ export const authAccounts = appSchema.table(
 export const authVerifications = appSchema.table(
   "auth_verifications",
   {
-    id: uuid("id").primaryKey(),
+    id: uuid("id").primaryKey().$defaultFn(defaultUuid),
     identifier: varchar("identifier", { length: 255 }).notNull(),
     value: text("value").notNull(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
