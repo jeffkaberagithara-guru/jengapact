@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+/**
+ * JengaPact design tokens.
+ *
+ * Tailwind v4 exposes each `@theme` entry as a utility (e.g. `--color-primary`
+ * → `bg-primary`). Semantic names are preferred over raw colour names so that a
+ * page reads in terms of role ("surface", "danger") rather than hue. The raw
+ * palette below documents the single source of truth for each value.
+ *
+ * Every foreground/background pairing used in the UI is contrast-checked in
+ * `docs/DESIGN.md`; see the accessibility table there.
+ */
+@theme {
+  /* ── Raw palette ─────────────────────────────────────────────────────── */
+  --color-forest-950: #0b1f1b;
+  --color-forest-900: #173f38;
+  --color-forest-800: #1d4c43;
+  --color-forest-700: #2d6e61;
+  --color-forest-600: #3d8578;
+  --color-forest-100: #d6e6e1;
+  --color-forest-50: #eef5f2;
+
+  --color-sand-50: #f6f7f4;
+  --color-sand-100: #eceee8;
+  --color-sand-200: #e1e7e2;
+
+  --color-ink-900: #192622;
+  --color-ink-600: #46524d;
+  --color-ink-500: #68756f;
+  --color-ink-400: #8a948f;
+
+  --color-blue-600: #466b9a;
+  --color-blue-100: #dbe6f4;
+  --color-amber-700: #a86d19;
+  --color-amber-100: #f6e7cc;
+  --color-red-700: #b5473c;
+  --color-red-100: #f7ddd9;
+  --color-green-700: #237a54;
+  --color-green-100: #d6ebe0;
+
+  /* ── Semantic tokens ─────────────────────────────────────────────────── */
+  --color-background: #f6f7f4;
+  --color-foreground: #192622;
+  --color-card: #ffffff;
+  --color-card-foreground: #192622;
+  --color-surface: #ffffff;
+  --color-muted: #eceee8;
+  --color-muted-foreground: #68756f;
+  --color-border: #e1e7e2;
+  --color-input: #e1e7e2;
+  --color-ring: #2d6e61;
+
+  --color-primary: #173f38;
+  --color-primary-foreground: #f6f7f4;
+  --color-primary-muted: #eef5f2;
+  --color-accent: #2d6e61;
+  --color-accent-foreground: #ffffff;
+
+  --color-success: #237a54;
+  --color-success-foreground: #ffffff;
+  --color-success-muted: #d6ebe0;
+  --color-warning: #a86d19;
+  --color-warning-foreground: #ffffff;
+  --color-warning-muted: #f6e7cc;
+  --color-danger: #b5473c;
+  --color-danger-foreground: #ffffff;
+  --color-danger-muted: #f7ddd9;
+  --color-info: #466b9a;
+  --color-info-foreground: #ffffff;
+  --color-info-muted: #dbe6f4;
+
+  /* ── Typography ──────────────────────────────────────────────────────── */
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+  --font-mono:
+    "Geist Mono", ui-monospace, "SFMono-Regular", "Cascadia Code", monospace;
+
+  /* ── Elevation ───────────────────────────────────────────────────────── */
+  --shadow-card: 0 1px 2px rgba(25, 38, 34, 0.04), 0 1px 3px rgba(25, 38, 34, 0.06);
+  --shadow-raised: 0 4px 12px rgba(25, 38, 34, 0.08);
+  --shadow-overlay: 0 12px 32px rgba(11, 31, 27, 0.18);
+
+  /* ── Radius (restrained, professional) ───────────────────────────────── */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Visible focus for every focusable element — WCAG 2.2 AA. */
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-forest-100);
+  }
+}
+
+@layer utilities {
+  /* Tabular figures for money and hashes, so digits align in columns. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
+  }
+
+  /* A hairline grid used behind hero and summary surfaces. */
+  .grid-rule {
+    background-image:
+      linear-gradient(to right, var(--color-border) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-border) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+}
+
+/* Respect reduced-motion preferences for every transition and animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
