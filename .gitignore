@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
+# Environment — never commit real secrets
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# Testing
+coverage/
+playwright-report/
+test-results/
+.playwright/
+
+# Misc
+.DS_Store
+*.pem
+*.log
+npm-debug.log*
+.vercel
