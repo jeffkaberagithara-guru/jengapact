@@ -34,13 +34,19 @@ export function formatDate(value: Date | string): string {
  * reads as "0 days" and is rendered with an overdue state rather than a
  * negative number.
  */
-export function daysRemaining(deadline: Date | string, now: Date = new Date()): number {
+export function daysRemaining(
+  deadline: Date | string,
+  now: Date = new Date(),
+): number {
   const target = typeof deadline === "string" ? new Date(deadline) : deadline;
   const diffMs = target.getTime() - now.getTime();
   return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
 }
 
-export function isOverdue(deadline: Date | string, now: Date = new Date()): boolean {
+export function isOverdue(
+  deadline: Date | string,
+  now: Date = new Date(),
+): boolean {
   const target = typeof deadline === "string" ? new Date(deadline) : deadline;
   return target.getTime() < now.getTime();
 }

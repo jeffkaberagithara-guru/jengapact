@@ -49,12 +49,7 @@ const daysAgo = (days: number, hour = 9): Date => {
 
 /** Explicit enum unions (drizzle's `enumValues` typing is widened to `string[]`). */
 type _MilestoneStatusValue =
-  | "pending"
-  | "in_progress"
-  | "verified"
-  | "certified"
-  | "paid"
-  | "locked";
+  "pending" | "in_progress" | "verified" | "certified" | "paid" | "locked";
 type ClauseStatusValue = "proposed" | "in_review" | "agreed" | "disputed";
 type AuthorityActionValue =
   | "draft_clause"
@@ -190,11 +185,31 @@ async function main(): Promise<void> {
     ]);
 
     await tx.insert(organizationMembers).values([
-      { organizationId: ids.safariSprings, userId: ids.muthoni, role: "owner" as const },
-      { organizationId: ids.kaptim, userId: ids.daniel, role: "owner" as const },
-      { organizationId: ids.thiongoAssociates, userId: ids.wanjiru, role: "owner" as const },
-      { organizationId: ids.thiongoAssociates, userId: ids.wambui, role: "admin" as const },
-      { organizationId: ids.thiongoAssociates, userId: ids.samuel, role: "admin" as const },
+      {
+        organizationId: ids.safariSprings,
+        userId: ids.muthoni,
+        role: "owner" as const,
+      },
+      {
+        organizationId: ids.kaptim,
+        userId: ids.daniel,
+        role: "owner" as const,
+      },
+      {
+        organizationId: ids.thiongoAssociates,
+        userId: ids.wanjiru,
+        role: "owner" as const,
+      },
+      {
+        organizationId: ids.thiongoAssociates,
+        userId: ids.wambui,
+        role: "admin" as const,
+      },
+      {
+        organizationId: ids.thiongoAssociates,
+        userId: ids.samuel,
+        role: "admin" as const,
+      },
     ]);
 
     /* ───────────────────────────── project ───────────────────────────── */
@@ -216,11 +231,36 @@ async function main(): Promise<void> {
     ]);
 
     await tx.insert(projectMemberships).values([
-      { projectId: ids.project, userId: ids.muthoni, role: "client" as const, organizationId: ids.safariSprings },
-      { projectId: ids.project, userId: ids.daniel, role: "contractor" as const, organizationId: ids.kaptim },
-      { projectId: ids.project, userId: ids.wanjiru, role: "lead_consultant" as const, organizationId: ids.thiongoAssociates },
-      { projectId: ids.project, userId: ids.wambui, role: "quantity_surveyor" as const, organizationId: ids.thiongoAssociates },
-      { projectId: ids.project, userId: ids.samuel, role: "engineer" as const, organizationId: ids.thiongoAssociates },
+      {
+        projectId: ids.project,
+        userId: ids.muthoni,
+        role: "client" as const,
+        organizationId: ids.safariSprings,
+      },
+      {
+        projectId: ids.project,
+        userId: ids.daniel,
+        role: "contractor" as const,
+        organizationId: ids.kaptim,
+      },
+      {
+        projectId: ids.project,
+        userId: ids.wanjiru,
+        role: "lead_consultant" as const,
+        organizationId: ids.thiongoAssociates,
+      },
+      {
+        projectId: ids.project,
+        userId: ids.wambui,
+        role: "quantity_surveyor" as const,
+        organizationId: ids.thiongoAssociates,
+      },
+      {
+        projectId: ids.project,
+        userId: ids.samuel,
+        role: "engineer" as const,
+        organizationId: ids.thiongoAssociates,
+      },
     ]);
 
     /* ─────────────── authority matrix (explicit, seeded from appointment) ─────────────── */
@@ -240,19 +280,65 @@ async function main(): Promise<void> {
       ["export_evidence", "quantity_surveyor"],
       ["export_evidence", "engineer"],
     ];
-    await tx.insert(authorityRules).values(
-      authority.map(([action, role]) => ({ projectId: ids.project, action, role })),
-    );
+    await tx
+      .insert(authorityRules)
+      .values(
+        authority.map(([action, role]) => ({
+          projectId: ids.project,
+          action,
+          role,
+        })),
+      );
 
     /* ───────────────────────────── milestones (escrow spine) ───────────────────────────── */
-    const milestonePlan: Array<{ sequence: number; code: string; name: string; amount: number }> = [
-      { sequence: 1, code: "M1", name: "Mobilisation & site possession", amount: 29_160_000 },
-      { sequence: 2, code: "M2", name: "Substructure to ground floor slab", amount: 87_480_000 },
-      { sequence: 3, code: "M3", name: "Structure — Blocks 1–3 to roof level", amount: 121_500_000 },
-      { sequence: 4, code: "M4", name: "M&E rough-ins & roofing", amount: 87_480_000 },
-      { sequence: 5, code: "M5", name: "Unit finishes — Blocks 1–3", amount: 72_900_000 },
-      { sequence: 6, code: "M6", name: "Practical completion & handover", amount: 58_320_000 },
-      { sequence: 7, code: "M7", name: "Defects liability release (6 months)", amount: 29_160_000 },
+    const milestonePlan: Array<{
+      sequence: number;
+      code: string;
+      name: string;
+      amount: number;
+    }> = [
+      {
+        sequence: 1,
+        code: "M1",
+        name: "Mobilisation & site possession",
+        amount: 29_160_000,
+      },
+      {
+        sequence: 2,
+        code: "M2",
+        name: "Substructure to ground floor slab",
+        amount: 87_480_000,
+      },
+      {
+        sequence: 3,
+        code: "M3",
+        name: "Structure — Blocks 1–3 to roof level",
+        amount: 121_500_000,
+      },
+      {
+        sequence: 4,
+        code: "M4",
+        name: "M&E rough-ins & roofing",
+        amount: 87_480_000,
+      },
+      {
+        sequence: 5,
+        code: "M5",
+        name: "Unit finishes — Blocks 1–3",
+        amount: 72_900_000,
+      },
+      {
+        sequence: 6,
+        code: "M6",
+        name: "Practical completion & handover",
+        amount: 58_320_000,
+      },
+      {
+        sequence: 7,
+        code: "M7",
+        name: "Defects liability release (6 months)",
+        amount: 29_160_000,
+      },
     ];
     await tx.insert(milestones).values(
       milestonePlan.map((m, i) => ({
@@ -262,7 +348,13 @@ async function main(): Promise<void> {
         name: m.name,
         amountMinor: toMinor(m.amount),
         status: (() => {
-          let s: "pending" | "in_progress" | "verified" | "certified" | "paid" | "locked" = "pending";
+          let s:
+            | "pending"
+            | "in_progress"
+            | "verified"
+            | "certified"
+            | "paid"
+            | "locked" = "pending";
           if (i <= 3) s = "paid";
           if (i === 4) s = "certified";
           return s;
@@ -275,36 +367,31 @@ async function main(): Promise<void> {
       {
         sectionCode: "2.0",
         heading: "Scope of the Works",
-        body:
-          "The Contractor shall carry out and complete the construction of the project in accordance with the Contract Documents to the reasonable satisfaction of the Architect and the Employer.",
+        body: "The Contractor shall carry out and complete the construction of the project in accordance with the Contract Documents to the reasonable satisfaction of the Architect and the Employer.",
         status: "agreed",
       },
       {
         sectionCode: "6.1",
         heading: "Variations",
-        body:
-          "The Architect may issue instructions requiring a variation, the value of which shall be assessed on the basis of the Contract rates and prices where applicable, or fair valuation where not.",
+        body: "The Architect may issue instructions requiring a variation, the value of which shall be assessed on the basis of the Contract rates and prices where applicable, or fair valuation where not.",
         status: "disputed",
       },
       {
         sectionCode: "11.3",
         heading: "Interim Payments & Certificates",
-        body:
-          "The Quantity Surveyor shall value the work executed and materials on site at the end of each period and the Architect shall issue an Interim Certificate within the time stated, which the Employer shall pay within 30 days of issue.",
+        body: "The Quantity Surveyor shall value the work executed and materials on site at the end of each period and the Architect shall issue an Interim Certificate within the time stated, which the Employer shall pay within 30 days of issue.",
         status: "agreed",
       },
       {
         sectionCode: "17.0",
         heading: "Insurance",
-        body:
-          "The Contractor shall maintain all-risks insurance in joint names covering the works, materials and persons on site for the full contract value, evidenced annually.",
+        body: "The Contractor shall maintain all-risks insurance in joint names covering the works, materials and persons on site for the full contract value, evidenced annually.",
         status: "agreed",
       },
       {
         sectionCode: "27.0",
         heading: "Liquidated & Ascertained Damages",
-        body:
-          "If the Contractor fails to achieve practical completion by the date for completion, the Contractor shall pay liquidated damages at the rate in the Appendix, subject to a cap.",
+        body: "If the Contractor fails to achieve practical completion by the date for completion, the Contractor shall pay liquidated damages at the rate in the Appendix, subject to a cap.",
         status: "agreed",
       },
     ] as const;
@@ -449,7 +536,8 @@ async function main(): Promise<void> {
         claimId: ids.claim004,
         valuerId: ids.wambui,
         assessedMinor: toMinor(56_900_000),
-        notes: "Measured on site 2026-09-05; unfixed materials excluded pending M&E joinery.",
+        notes:
+          "Measured on site 2026-09-05; unfixed materials excluded pending M&E joinery.",
         createdAt: daysAgo(20, 14),
       },
     ]);
@@ -535,7 +623,8 @@ async function main(): Promise<void> {
         eventType: "agreement_executed",
         entityType: "agreement",
         entityId: ids.agreement,
-        summary: "Executed Sakura Court Building Contract (JBC 1999), sum KSh 486,000,000.00.",
+        summary:
+          "Executed Sakura Court Building Contract (JBC 1999), sum KSh 486,000,000.00.",
         previousState: "ready_for_signature",
         resultingState: "executed",
         clauseRef: null,
@@ -548,7 +637,8 @@ async function main(): Promise<void> {
         eventType: "variation_executed",
         entityType: "variation",
         entityId: ids.var006,
-        summary: "VAR-006 Balcony glazing committed at KSh 12,700,000.00 (+21 days).",
+        summary:
+          "VAR-006 Balcony glazing committed at KSh 12,700,000.00 (+21 days).",
         previousState: "approved_pending_execution",
         resultingState: "executed",
         clauseRef: "6.1",
@@ -561,7 +651,8 @@ async function main(): Promise<void> {
         eventType: "variation_submitted",
         entityType: "variation",
         entityId: ids.var014,
-        summary: "VAR-014 Block 3 flooring upgrade submitted for review (claimed KSh 18,500,000.00).",
+        summary:
+          "VAR-014 Block 3 flooring upgrade submitted for review (claimed KSh 18,500,000.00).",
         previousState: "draft",
         resultingState: "submitted",
         clauseRef: "6.1",
@@ -574,7 +665,8 @@ async function main(): Promise<void> {
         eventType: "variation_review_completed",
         entityType: "variation",
         entityId: ids.var014,
-        summary: "VAR-014 commercial review approved at KSh 17,900,000.00; awaiting client authorization.",
+        summary:
+          "VAR-014 commercial review approved at KSh 17,900,000.00; awaiting client authorization.",
         previousState: "under_review",
         resultingState: "under_review",
         clauseRef: "6.1",
@@ -613,7 +705,8 @@ async function main(): Promise<void> {
         eventType: "certificate_issued",
         entityType: "payment_certificate",
         entityId: ids.cert004,
-        summary: "CERT-004 issued, KSh 56,900,000.00 (retention KSh 5,690,000.00); due 2026-10-16.",
+        summary:
+          "CERT-004 issued, KSh 56,900,000.00 (retention KSh 5,690,000.00); due 2026-10-16.",
         previousState: "draft",
         resultingState: "issued",
         clauseRef: "11.3",
@@ -678,6 +771,9 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  console.error("[seed] failed:", error instanceof Error ? error.message : error);
+  console.error(
+    "[seed] failed:",
+    error instanceof Error ? error.message : error,
+  );
   process.exit(1);
 });

@@ -24,7 +24,10 @@ export interface Money {
   currency: CurrencyCode;
 }
 
-export function money(minor: Minor, currency: CurrencyCode = DEFAULT_CURRENCY): Money {
+export function money(
+  minor: Minor,
+  currency: CurrencyCode = DEFAULT_CURRENCY,
+): Money {
   if (!Number.isInteger(minor)) {
     throw new Error(`Money must be integer minor units, received ${minor}`);
   }
@@ -42,10 +45,7 @@ export function subtract(a: Money, b: Money): Money {
 }
 
 export function sum(values: readonly Money[]): Money {
-  return values.reduce<Money>(
-    (acc, value) => add(acc, value),
-    money(0),
-  );
+  return values.reduce<Money>((acc, value) => add(acc, value), money(0));
 }
 
 /**
@@ -92,7 +92,10 @@ export function parseAmountToMinor(input: string): Minor | null {
 }
 
 /** Formats integer minor units as a human-readable KES string. */
-export function formatMoney(value: Money, options?: { withSymbol?: boolean }): string {
+export function formatMoney(
+  value: Money,
+  options?: { withSymbol?: boolean },
+): string {
   const withSymbol = options?.withSymbol ?? true;
   const negative = value.minor < 0;
   const abs = Math.abs(value.minor);
@@ -113,9 +116,12 @@ export function formatMoneyCompact(value: Money): string {
   const major = Math.abs(value.minor) / MINOR_UNITS_PER_MAJOR;
   const sign = negative ? "-" : "";
 
-  if (major >= 1_000_000_000) return `${sign}${symbolFor(value.currency)} ${(major / 1_000_000_000).toFixed(2)}B`;
-  if (major >= 1_000_000) return `${sign}${symbolFor(value.currency)} ${(major / 1_000_000).toFixed(2)}M`;
-  if (major >= 1_000) return `${sign}${symbolFor(value.currency)} ${(major / 1_000).toFixed(1)}K`;
+  if (major >= 1_000_000_000)
+    return `${sign}${symbolFor(value.currency)} ${(major / 1_000_000_000).toFixed(2)}B`;
+  if (major >= 1_000_000)
+    return `${sign}${symbolFor(value.currency)} ${(major / 1_000_000).toFixed(2)}M`;
+  if (major >= 1_000)
+    return `${sign}${symbolFor(value.currency)} ${(major / 1_000).toFixed(1)}K`;
   return formatMoney(value);
 }
 

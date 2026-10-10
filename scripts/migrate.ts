@@ -61,7 +61,9 @@ async function main(): Promise<void> {
       END
       $$;
     `);
-    console.log("[migrate] append-only guard installed on jengapact.project_events");
+    console.log(
+      "[migrate] append-only guard installed on jengapact.project_events",
+    );
   } finally {
     await connection.end({ timeout: 5 });
   }

@@ -119,7 +119,10 @@ export const variationStatus = appSchema.enum("variation_status", [
   "withdrawn",
 ]);
 
-export const reviewType = appSchema.enum("review_type", ["technical", "commercial"]);
+export const reviewType = appSchema.enum("review_type", [
+  "technical",
+  "commercial",
+]);
 
 export const reviewDecision = appSchema.enum("review_decision", [
   "approved",
@@ -135,7 +138,11 @@ export const instructionStatus = appSchema.enum("instruction_status", [
   "closed",
 ]);
 
-export const urgency = appSchema.enum("urgency", ["routine", "urgent", "emergency"]);
+export const urgency = appSchema.enum("urgency", [
+  "routine",
+  "urgent",
+  "emergency",
+]);
 
 export const claimStatus = appSchema.enum("claim_status", [
   "draft",
@@ -267,8 +274,12 @@ export const authorityAction = appSchema.enum("authority_action", [
 /* ──────────────────────── Timestamp helpers ──────────────────────── */
 
 const timestamps = {
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 };
 
 /* ────────────────────────── Identity ─────────────────────────── */
@@ -287,8 +298,12 @@ export const users = appSchema.table(
     email: varchar("email", { length: 320 }).notNull(),
     phone: varchar("phone", { length: 24 }),
     jobTitle: text("job_title"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [uniqueIndex("users_email_uniq").on(sql`lower(${t.email})`)],
 );
@@ -298,7 +313,9 @@ export const organizations = appSchema.table("organizations", {
   name: text("name").notNull(),
   kind: orgKind("kind").notNull().default("other"),
   registrationNumber: text("registration_number"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const organizationMembers = appSchema.table(
@@ -312,7 +329,9 @@ export const organizationMembers = appSchema.table(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     role: orgRole("role").notNull().default("member"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     uniqueIndex("organization_members_uniq").on(t.organizationId, t.userId),
@@ -338,15 +357,21 @@ export const projects = appSchema.table(
      * is executed. The live contract value is DERIVED from this plus approved
      * variations — never stored as a mutable summary field.
      */
-    originalContractMinor: bigint("original_contract_minor", { mode: "number" }),
+    originalContractMinor: bigint("original_contract_minor", {
+      mode: "number",
+    }),
     clientOrgId: uuid("client_org_id").references(() => organizations.id, {
       onDelete: "set null",
     }),
     createdBy: uuid("created_by")
       .notNull()
       .references(() => users.id),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [uniqueIndex("projects_reference_uniq").on(t.reference)],
 );
@@ -365,7 +390,9 @@ export const projectMemberships = appSchema.table(
     organizationId: uuid("organization_id").references(() => organizations.id, {
       onDelete: "set null",
     }),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     uniqueIndex("project_memberships_uniq").on(t.projectId, t.userId, t.role),
@@ -388,9 +415,13 @@ export const authorityRules = appSchema.table(
       .references(() => projects.id, { onDelete: "cascade" }),
     action: authorityAction("action").notNull(),
     role: projectRole("role").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
-  (t) => [uniqueIndex("authority_rules_uniq").on(t.projectId, t.action, t.role)],
+  (t) => [
+    uniqueIndex("authority_rules_uniq").on(t.projectId, t.action, t.role),
+  ],
 );
 
 export const invitations = appSchema.table(
@@ -408,7 +439,9 @@ export const invitations = appSchema.table(
     tokenHash: varchar("token_hash", { length: 64 }).notNull(),
     status: invitationStatus("status").notNull().default("pending"),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     index("invitations_project_idx").on(t.projectId),
@@ -428,13 +461,19 @@ export const milestones = appSchema.table(
     sequence: integer("sequence").notNull(),
     code: varchar("code", { length: 16 }).notNull(),
     name: text("name").notNull(),
-    amountMinor: bigint("amount_minor", { mode: "number" }).notNull().default(0),
+    amountMinor: bigint("amount_minor", { mode: "number" })
+      .notNull()
+      .default(0),
     status: milestoneStatus("status").notNull().default("pending"),
     targetDate: date("target_date"),
     completedAt: timestamp("completed_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
-  (t) => [uniqueIndex("milestones_project_seq_uniq").on(t.projectId, t.sequence)],
+  (t) => [
+    uniqueIndex("milestones_project_seq_uniq").on(t.projectId, t.sequence),
+  ],
 );
 
 /* ───────────────────────── Agreements ────────────────────────── */
@@ -474,9 +513,13 @@ export const agreementVersions = appSchema.table(
       .references(() => users.id),
     executedAt: timestamp("executed_at", { withTimezone: true }),
     supersededByVersionId: uuid("superseded_by_version_id"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
-  (t) => [uniqueIndex("agreement_versions_label_uniq").on(t.agreementId, t.label)],
+  (t) => [
+    uniqueIndex("agreement_versions_label_uniq").on(t.agreementId, t.label),
+  ],
 );
 
 export const agreementClauses = appSchema.table(
@@ -494,7 +537,9 @@ export const agreementClauses = appSchema.table(
     body: text("body").notNull(),
     status: clauseStatus("status").notNull().default("proposed"),
     orderIndex: integer("order_index").notNull().default(0),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [index("agreement_clauses_version_idx").on(t.versionId)],
 );
@@ -515,7 +560,9 @@ export const negotiationProposals = appSchema.table(
     status: proposalStatus("status").notNull().default("proposed"),
     resolvedBy: uuid("resolved_by").references(() => users.id),
     resolvedAt: timestamp("resolved_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [index("negotiation_proposals_clause_idx").on(t.clauseId)],
 );
@@ -542,7 +589,9 @@ export const variations = appSchema.table(
     scopeExclusions: text("scope_exclusions"),
     status: variationStatus("status").notNull().default("draft"),
     /** Claimed by the contractor, in minor units. */
-    claimedMinor: bigint("claimed_minor", { mode: "number" }).notNull().default(0),
+    claimedMinor: bigint("claimed_minor", { mode: "number" })
+      .notNull()
+      .default(0),
     /** Assessed by the QS, in minor units. NULL until a commercial review. */
     assessedMinor: bigint("assessed_minor", { mode: "number" }),
     /** Committed to the baseline only when executed. */
@@ -575,7 +624,9 @@ export const variationReviews = appSchema.table(
     decision: reviewDecision("decision").notNull(),
     notes: text("notes"),
     assessedMinor: bigint("assessed_minor", { mode: "number" }),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [index("variation_reviews_variation_idx").on(t.variationId)],
 );
@@ -595,9 +646,13 @@ export const instructions = appSchema.table(
       .references(() => users.id),
     urgency: urgency("urgency").notNull().default("routine"),
     status: instructionStatus("status").notNull().default("issued"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
-  (t) => [uniqueIndex("instructions_reference_uniq").on(t.projectId, t.reference)],
+  (t) => [
+    uniqueIndex("instructions_reference_uniq").on(t.projectId, t.reference),
+  ],
 );
 
 /* ───────────────────────── Payments ────────────────────────── */
@@ -619,7 +674,9 @@ export const paymentClaims = appSchema.table(
     submittedAt: timestamp("submitted_at", { withTimezone: true }),
     ...timestamps,
   },
-  (t) => [uniqueIndex("payment_claims_reference_uniq").on(t.projectId, t.reference)],
+  (t) => [
+    uniqueIndex("payment_claims_reference_uniq").on(t.projectId, t.reference),
+  ],
 );
 
 export const valuations = appSchema.table(
@@ -634,7 +691,9 @@ export const valuations = appSchema.table(
       .references(() => users.id),
     assessedMinor: bigint("assessed_minor", { mode: "number" }).notNull(),
     notes: text("notes"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [index("valuations_claim_idx").on(t.claimId)],
 );
@@ -652,14 +711,23 @@ export const paymentCertificates = appSchema.table(
     reference: varchar("reference", { length: 24 }).notNull(),
     /** Gross certified amount in minor units. */
     certifiedMinor: bigint("certified_minor", { mode: "number" }).notNull(),
-    retentionMinor: bigint("retention_minor", { mode: "number" }).notNull().default(0),
+    retentionMinor: bigint("retention_minor", { mode: "number" })
+      .notNull()
+      .default(0),
     status: certificateStatus("status").notNull().default("draft"),
     issuedById: uuid("issued_by_id").references(() => users.id),
     issuedAt: timestamp("issued_at", { withTimezone: true }),
     dueDate: date("due_date"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
-  (t) => [uniqueIndex("payment_certificates_reference_uniq").on(t.projectId, t.reference)],
+  (t) => [
+    uniqueIndex("payment_certificates_reference_uniq").on(
+      t.projectId,
+      t.reference,
+    ),
+  ],
 );
 
 export const paymentRecords = appSchema.table(
@@ -669,9 +737,12 @@ export const paymentRecords = appSchema.table(
     projectId: uuid("project_id")
       .notNull()
       .references(() => projects.id, { onDelete: "cascade" }),
-    certificateId: uuid("certificate_id").references(() => paymentCertificates.id, {
-      onDelete: "set null",
-    }),
+    certificateId: uuid("certificate_id").references(
+      () => paymentCertificates.id,
+      {
+        onDelete: "set null",
+      },
+    ),
     amountMinor: bigint("amount_minor", { mode: "number" }).notNull(),
     method: paymentMethod("method").notNull().default("rtgs"),
     externalReference: varchar("external_reference", { length: 80 }),
@@ -680,7 +751,9 @@ export const paymentRecords = appSchema.table(
       .notNull()
       .references(() => users.id),
     evidenceDocumentId: uuid("evidence_document_id"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     index("payment_records_project_idx").on(t.projectId),
@@ -700,12 +773,17 @@ export const retentionEntries = appSchema.table(
     projectId: uuid("project_id")
       .notNull()
       .references(() => projects.id, { onDelete: "cascade" }),
-    certificateId: uuid("certificate_id").references(() => paymentCertificates.id, {
-      onDelete: "set null",
-    }),
+    certificateId: uuid("certificate_id").references(
+      () => paymentCertificates.id,
+      {
+        onDelete: "set null",
+      },
+    ),
     amountMinor: bigint("amount_minor", { mode: "number" }).notNull(),
     releasedAt: timestamp("released_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [index("retention_entries_project_idx").on(t.projectId)],
 );
@@ -729,7 +807,9 @@ export const documents = appSchema.table(
     uploadedById: uuid("uploaded_by_id")
       .notNull()
       .references(() => users.id),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [index("documents_project_idx").on(t.projectId)],
 );
@@ -746,7 +826,9 @@ export const evidenceLinks = appSchema.table(
     linkedById: uuid("linked_by_id")
       .notNull()
       .references(() => users.id),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [index("evidence_links_entity_idx").on(t.entityType, t.entityId)],
 );
@@ -764,7 +846,9 @@ export const projectEvents = appSchema.table(
     projectId: uuid("project_id")
       .notNull()
       .references(() => projects.id, { onDelete: "cascade" }),
-    actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),
+    actorId: uuid("actor_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     actorRole: projectRole("actor_role"),
     eventType: varchar("event_type", { length: 64 }).notNull(),
     entityType: varchar("entity_type", { length: 40 }).notNull(),
@@ -774,7 +858,9 @@ export const projectEvents = appSchema.table(
     resultingState: varchar("resulting_state", { length: 40 }),
     clauseRef: varchar("clause_ref", { length: 40 }),
     payload: jsonb("payload"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     index("project_events_project_idx").on(t.projectId, t.createdAt),
@@ -803,7 +889,9 @@ export const projectIssues = appSchema.table(
     responsibleUserId: uuid("responsible_user_id").references(() => users.id),
     deadline: date("deadline"),
     resolutionNote: text("resolution_note"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     resolvedAt: timestamp("resolved_at", { withTimezone: true }),
   },
   (t) => [
@@ -829,10 +917,15 @@ export const professionalCredentials = appSchema.table(
     verificationMethod: text("verification_method"),
     verifiedAt: timestamp("verified_at", { withTimezone: true }),
     expiresAt: date("expires_at"),
-    evidenceDocumentId: uuid("evidence_document_id").references(() => documents.id, {
-      onDelete: "set null",
-    }),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    evidenceDocumentId: uuid("evidence_document_id").references(
+      () => documents.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [index("professional_credentials_user_idx").on(t.userId)],
 );
@@ -854,7 +947,9 @@ export const notifications = appSchema.table(
     relatedEntityType: varchar("related_entity_type", { length: 40 }),
     relatedEntityId: uuid("related_entity_id"),
     readAt: timestamp("read_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [index("notifications_user_idx").on(t.userId, t.createdAt)],
 );

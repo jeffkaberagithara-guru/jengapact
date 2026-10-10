@@ -72,7 +72,10 @@ export function env(): ServerEnv {
 
   // Local file storage writes inside the repository and must never be used in
   // a real deployment, where documents would vanish with the container.
-  if (parsed.data.APP_ENV === "production" && parsed.data.STORAGE_DRIVER === "local") {
+  if (
+    parsed.data.APP_ENV === "production" &&
+    parsed.data.STORAGE_DRIVER === "local"
+  ) {
     throw new Error(
       "STORAGE_DRIVER=local is not permitted when APP_ENV=production. Configure object storage.",
     );

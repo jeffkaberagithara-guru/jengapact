@@ -3,7 +3,12 @@ import type { ExtractTablesWithRelations } from "drizzle-orm";
 import postgres from "postgres";
 import { env } from "@/config/env";
 import * as schema from "./schema";
-import { authAccounts, authSessions, authUsers, authVerifications } from "./auth-schema";
+import {
+  authAccounts,
+  authSessions,
+  authUsers,
+  authVerifications,
+} from "./auth-schema";
 
 /**
  * Database client.
@@ -65,6 +70,8 @@ export type Db = Database | Transaction;
  * Runs `fn` inside a transaction. Nested calls reuse the outer transaction so
  * composed service functions remain atomic without double-BEGIN errors.
  */
-export async function withTransaction<T>(fn: (tx: Db) => Promise<T>): Promise<T> {
+export async function withTransaction<T>(
+  fn: (tx: Db) => Promise<T>,
+): Promise<T> {
   return db.transaction(async (tx) => fn(tx));
 }
