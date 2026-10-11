@@ -117,56 +117,68 @@ export default function LandingPage() {
       <SiteHeader />
 
       <main className="flex-1">
-        <section className="grid-rule border-b border-border bg-forest-50">
-          <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-6 px-4 py-20 sm:py-28">
-            <span className="inline-flex items-center gap-2 rounded-sm border border-forest-100 bg-surface px-3 py-1 text-xs font-medium text-forest-700">
-              <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-              Kenya-first construction transparency
-            </span>
-            <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-              Build without the uncertainty.
-            </h1>
-            <p className="max-w-2xl text-lg text-muted-foreground">
-              JengaPact turns the agreement, the variations, the valuations, the
-              certificates and the payments into one attributable record — so a
-              project does not depend on who remembers what was said.
-            </p>
-            <div className="flex flex-wrap items-center gap-3">
-              <Link
-                href="/sign-up"
-                className={cn(
-                  buttonVariants({ variant: "primary", size: "lg" }),
-                )}
-              >
-                Start a project
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-              <Link
-                href="/sign-in"
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "lg" }),
-                )}
-              >
-                Sign in
-              </Link>
-            </div>
-            <dl className="mt-6 grid w-full max-w-2xl grid-cols-2 gap-4 sm:grid-cols-4">
-              {[
-                ["8", "project stages"],
-                ["4", "money records"],
-                ["1", "append-only ledger"],
-                ["0", "floating-point totals"],
-              ].map(([value, label]) => (
-                <div key={label} className="flex flex-col">
-                  <dt className="tabular text-2xl font-semibold text-primary">
-                    {value}
-                  </dt>
-                  <dd className="text-xs text-muted-foreground">{label}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </section>
+         <section className="relative grid-rule border-b border-border overflow-hidden bg-forest-50">
+           <video
+             autoPlay
+             muted
+             loop
+             playsInline
+             aria-hidden="true"
+             poster="/images/construction-site-1.jpg"
+             className="absolute inset-0 -z-10 h-full w-full object-cover opacity-30"
+           >
+             <source src="/videos/construction-hero.mp4" type="video/mp4" />
+           </video>
+           <div className="absolute inset-0 -z-10 bg-gradient-to-r from-forest-50 via-forest-50/90 to-forest-50/40" />
+           <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-6 px-4 py-20 sm:py-28 relative z-10">
+             <span className="inline-flex items-center gap-2 rounded-sm border border-forest-100 bg-surface/95 backdrop-blur-sm px-3 py-1 text-xs font-medium text-forest-700">
+               <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+               Kenya-first construction transparency
+             </span>
+             <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+               Build without the uncertainty.
+             </h1>
+             <p className="max-w-2xl text-lg text-muted-foreground">
+               JengaPact turns the agreement, the variations, the valuations, the
+               certificates and the payments into one attributable record — so a
+               project does not depend on who remembers what was said.
+             </p>
+             <div className="flex flex-wrap items-center gap-3">
+               <Link
+                 href="/sign-up"
+                 className={cn(
+                   buttonVariants({ variant: "primary", size: "lg" }),
+                 )}
+               >
+                 Start a project
+                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
+               </Link>
+               <Link
+                 href="/sign-in"
+                 className={cn(
+                   buttonVariants({ variant: "outline", size: "lg" }),
+                 )}
+               >
+                 Sign in
+               </Link>
+             </div>
+             <dl className="mt-6 grid w-full max-w-2xl grid-cols-2 gap-4 sm:grid-cols-4">
+               {[
+                 ["8", "project stages"],
+                 ["4", "money records"],
+                 ["1", "append-only ledger"],
+                 ["0", "floating-point totals"],
+               ].map(([value, label]) => (
+                 <div key={label} className="flex flex-col">
+                   <dt className="tabular text-2xl font-semibold text-primary">
+                     {value}
+                   </dt>
+                   <dd className="text-xs text-muted-foreground">{label}</dd>
+                 </div>
+               ))}
+             </dl>
+           </div>
+         </section>
 
         <section id="how" className="border-b border-border">
           <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:py-20">
@@ -198,10 +210,17 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section
-          id="capabilities"
-          className="border-b border-border bg-sand-100"
-        >
+         <section
+           id="capabilities"
+           className="border-b border-border bg-sand-100 relative overflow-hidden"
+         >
+           <div className="absolute inset-0 -z-10 opacity-10">
+             <img
+               src="/images/construction-site-2.jpg"
+               alt="Construction site building progress"
+               className="h-full w-full object-cover"
+             />
+           </div>
           <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:py-20">
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
               What the platform actually enforces
@@ -225,45 +244,52 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="trust" className="border-b border-border">
-          <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-16 sm:py-20 lg:grid-cols-2">
-            <div className="flex flex-col gap-4">
-              <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                A record is evidence of process
-              </h2>
-              <p className="text-muted-foreground">
-                JengaPact does not claim to prove that work is true or that a
-                document is legally valid. It makes the process that led to a
-                decision visible, attributable and hard to quietly rewrite.
-              </p>
-              <div className="mt-2 flex items-center gap-2 rounded-md border border-border bg-surface p-4 text-sm text-muted-foreground">
-                <ClipboardList
-                  className="h-5 w-5 text-forest-600"
-                  aria-hidden="true"
-                />
-                Every consequential change writes one event, in the same
-                transaction as the change itself.
-              </div>
-            </div>
-            <div className="grid gap-5 sm:grid-cols-2">
-              {TRUST.map((item) => (
-                <div
-                  key={item.title}
-                  className="rounded-lg border border-border bg-surface p-5 shadow-card"
-                >
-                  <item.icon
-                    className="h-5 w-5 text-accent"
-                    aria-hidden="true"
-                  />
-                  <h3 className="mt-3 text-sm font-semibold">{item.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {item.body}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+         <section id="trust" className="border-b border-border relative overflow-hidden">
+           <div className="absolute inset-0 -z-10 opacity-5">
+             <img
+               src="/images/construction-team.jpg"
+               alt="Construction team reviewing documents"
+               className="h-full w-full object-cover"
+             />
+           </div>
+           <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-16 sm:py-20 lg:grid-cols-2 relative">
+             <div className="flex flex-col gap-4">
+               <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+                 A record is evidence of process
+               </h2>
+               <p className="text-muted-foreground">
+                 JengaPact does not claim to prove that work is true or that a
+                 document is legally valid. It makes the process that led to a
+                 decision visible, attributable and hard to quietly rewrite.
+               </p>
+               <div className="mt-2 flex items-center gap-2 rounded-md border border-border bg-surface/95 backdrop-blur-sm p-4 text-sm text-muted-foreground">
+                 <ClipboardList
+                   className="h-5 w-5 text-forest-600"
+                   aria-hidden="true"
+                 />
+                 Every consequential change writes one event, in the same
+                 transaction as the change itself.
+               </div>
+             </div>
+             <div className="grid gap-5 sm:grid-cols-2">
+               {TRUST.map((item) => (
+                 <div
+                   key={item.title}
+                   className="rounded-lg border border-border bg-surface/95 backdrop-blur-sm p-5 shadow-card"
+                 >
+                   <item.icon
+                     className="h-5 w-5 text-accent"
+                     aria-hidden="true"
+                   />
+                   <h3 className="mt-3 text-sm font-semibold">{item.title}</h3>
+                   <p className="mt-1 text-sm text-muted-foreground">
+                     {item.body}
+                   </p>
+                 </div>
+               ))}
+             </div>
+           </div>
+         </section>
 
         <section className="bg-primary">
           <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-6 px-4 py-16 sm:flex-row sm:items-center sm:justify-between">
