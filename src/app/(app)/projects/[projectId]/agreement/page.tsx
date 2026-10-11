@@ -8,7 +8,10 @@ import {
 } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatDateTime } from "@/lib/date";
+import { loadProjectActor } from "@/modules/access/context";
 import { getAgreement } from "@/modules/projects/queries";
+import { AcceptClauseForm } from "./accept-form";
+import { ProposeClauseForm } from "./propose-form";
 
 const FORM_LABELS: Record<string, string> = {
   jbc_1999: "JBC 1999",
@@ -23,7 +26,10 @@ export default async function AgreementPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const view = await getAgreement(projectId);
+  const [actor, view] = await Promise.all([
+    loadProjectActor(projectId),
+    getAgreement(projectId),
+  ]);
 
   if (!view) {
     return (
@@ -34,6 +40,7 @@ export default async function AgreementPage({
   }
 
   const { agreement, version, clauses } = view;
+  const canDraft = actor?.can("draft_clause") ?? false;
 
   return (
     <div className="flex flex-col gap-6">
@@ -85,13 +92,19 @@ export default async function AgreementPage({
                   </span>
                   <h3 className="text-sm font-semibold">{clause.heading}</h3>
                 </div>
-                <Badge
-                  tone={clause.status === "disputed" ? "danger" : "neutral"}
-                >
+                <Badge tone={clause.status === "disputed" ? "danger" : "neutral"}>
                   {clause.status.replace(/_/g, " ")}
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground">{clause.body}</p>
+              {canDraft ? (
+                <div className="mt-2 flex flex-col gap-2">
+                  <ProposeClauseForm projectId={projectId} clauseId={clause.id} />
+                  {clause.status === "in_review" ? (
+                    <AcceptClauseForm projectId={projectId} clauseId={clause.id} />
+                  ) : null}
+                </div>
+              ) : null}
             </CardContent>
           </Card>
         ))}
