@@ -1,5 +1,5 @@
 import { Money } from "@/components/app/money";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Stat } from "@/components/ui/stat";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
@@ -11,11 +11,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDate, formatDateTime } from "@/lib/date";
+import { loadProjectActor } from "@/modules/access/context";
 import {
   getPaymentLedger,
   getProjectById,
   getProjectOverview,
 } from "@/modules/projects/queries";
+import { CertificateForm } from "./certificate-form";
+import { ClaimForm } from "./claim-form";
+import { PaymentForm } from "./payment-form";
+import { ValuationForm } from "./valuation-form";
 
 export default async function PaymentsPage({
   params,
@@ -23,12 +28,21 @@ export default async function PaymentsPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const [project, overview, ledger] = await Promise.all([
+  const [actor, project, overview, ledger] = await Promise.all([
+    loadProjectActor(projectId),
     getProjectById(projectId),
     getProjectOverview(projectId),
     getPaymentLedger(projectId),
   ]);
   const currency = project?.currency ?? "KES";
+  const canClaim = actor?.can("submit_claim") ?? false;
+  const canValue = actor?.can("assess_valuation") ?? false;
+  const canCert = actor?.can("issue_certificate") ?? false;
+  const canPay = actor?.can("record_payment") ?? false;
+  const certOptions = ledger.certificates.map((c) => ({
+    id: c.certificate.id,
+    reference: c.certificate.reference,
+  }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -37,23 +51,51 @@ export default async function PaymentsPage({
           label="Certified"
           value={<Money minor={overview.certifiedMinor} currency={currency} />}
         />
-        <Stat
-          label="Paid"
-          value={<Money minor={overview.paidMinor} currency={currency} />}
-        />
+        <Stat label="Paid" value={<Money minor={overview.paidMinor} currency={currency} />} />
         <Stat
           label="Outstanding"
-          value={
-            <Money minor={overview.outstandingMinor} currency={currency} />
-          }
+          value={<Money minor={overview.outstandingMinor} currency={currency} />}
         />
         <Stat
           label="Retention held"
-          value={
-            <Money minor={overview.retentionHeldMinor} currency={currency} />
-          }
+          value={<Money minor={overview.retentionHeldMinor} currency={currency} />}
         />
       </div>
+
+      {(canClaim || canCert || canPay) ? (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {canClaim ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Submit payment claim</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ClaimForm projectId={projectId} />
+              </CardContent>
+            </Card>
+          ) : null}
+          {canCert ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Issue payment certificate</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CertificateForm projectId={projectId} claimId={null} />
+              </CardContent>
+            </Card>
+          ) : null}
+          {canPay ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Record payment</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PaymentForm projectId={projectId} certificates={certOptions} />
+              </CardContent>
+            </Card>
+          ) : null}
+        </div>
+      ) : null}
 
       <Card>
         <CardHeader>
@@ -67,33 +109,37 @@ export default async function PaymentsPage({
                 <TableHeaderCell>Claimant</TableHeaderCell>
                 <TableHeaderCell>Period end</TableHeaderCell>
                 <TableHeaderCell>Submitted</TableHeaderCell>
-                <TableHeaderCell className="text-right">
-                  Claimed
-                </TableHeaderCell>
+                <TableHeaderCell className="text-right">Claimed</TableHeaderCell>
                 <TableHeaderCell>Status</TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {ledger.claims.map(({ claim, claimantName }) => (
-                <TableRow key={claim.id}>
-                  <TableCell className="tabular">{claim.reference}</TableCell>
-                  <TableCell>{claimantName ?? "—"}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {claim.periodEnd ? formatDate(claim.periodEnd) : "—"}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {claim.submittedAt
-                      ? formatDateTime(claim.submittedAt)
-                      : "—"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Money minor={claim.claimedMinor} currency={currency} />
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={claim.status} />
-                  </TableCell>
-                </TableRow>
-              ))}
+              {ledger.claims.map(({ claim, claimantName }) => {
+                const showValuation = canValue && claim.status !== "certified" && claim.status !== "withdrawn";
+                return (
+                  <TableRow key={claim.id}>
+                    <TableCell className="tabular">{claim.reference}</TableCell>
+                    <TableCell>{claimantName ?? "—"}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {claim.periodEnd ? formatDate(claim.periodEnd) : "—"}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {claim.submittedAt ? formatDateTime(claim.submittedAt) : "—"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Money minor={claim.claimedMinor} currency={currency} />
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={claim.status} />
+                      {showValuation ? (
+                        <div className="mt-3">
+                          <ValuationForm projectId={projectId} claimId={claim.id} />
+                        </div>
+                      ) : null}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>
@@ -110,9 +156,7 @@ export default async function PaymentsPage({
                 <TableHeaderCell>Valuer</TableHeaderCell>
                 <TableHeaderCell>Notes</TableHeaderCell>
                 <TableHeaderCell>Date</TableHeaderCell>
-                <TableHeaderCell className="text-right">
-                  Assessed
-                </TableHeaderCell>
+                <TableHeaderCell className="text-right">Assessed</TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -133,10 +177,7 @@ export default async function PaymentsPage({
                       {formatDateTime(valuation.createdAt)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Money
-                        minor={valuation.assessedMinor}
-                        currency={currency}
-                      />
+                      <Money minor={valuation.assessedMinor} currency={currency} />
                     </TableCell>
                   </TableRow>
                 ))
@@ -157,42 +198,26 @@ export default async function PaymentsPage({
                 <TableHeaderCell>Reference</TableHeaderCell>
                 <TableHeaderCell>Issued</TableHeaderCell>
                 <TableHeaderCell>Due</TableHeaderCell>
-                <TableHeaderCell className="text-right">
-                  Certified
-                </TableHeaderCell>
-                <TableHeaderCell className="text-right">
-                  Retention
-                </TableHeaderCell>
+                <TableHeaderCell className="text-right">Certified</TableHeaderCell>
+                <TableHeaderCell className="text-right">Retention</TableHeaderCell>
                 <TableHeaderCell>Status</TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {ledger.certificates.map(({ certificate }) => (
                 <TableRow key={certificate.id}>
-                  <TableCell className="tabular">
-                    {certificate.reference}
+                  <TableCell className="tabular">{certificate.reference}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {certificate.issuedAt ? formatDateTime(certificate.issuedAt) : "—"}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {certificate.issuedAt
-                      ? formatDateTime(certificate.issuedAt)
-                      : "—"}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {certificate.dueDate
-                      ? formatDate(certificate.dueDate)
-                      : "—"}
+                    {certificate.dueDate ? formatDate(certificate.dueDate) : "—"}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Money
-                      minor={certificate.certifiedMinor}
-                      currency={currency}
-                    />
+                    <Money minor={certificate.certifiedMinor} currency={currency} />
                   </TableCell>
                   <TableCell className="text-right text-muted-foreground">
-                    <Money
-                      minor={certificate.retentionMinor}
-                      currency={currency}
-                    />
+                    <Money minor={certificate.retentionMinor} currency={currency} />
                   </TableCell>
                   <TableCell>
                     <StatusBadge status={certificate.status} />
@@ -232,9 +257,7 @@ export default async function PaymentsPage({
                     <TableCell className="text-muted-foreground">
                       {formatDate(payment.paidAt)}
                     </TableCell>
-                    <TableCell className="uppercase">
-                      {payment.method}
-                    </TableCell>
+                    <TableCell className="uppercase">{payment.method}</TableCell>
                     <TableCell className="tabular text-muted-foreground">
                       {payment.externalReference ?? "—"}
                     </TableCell>
@@ -261,9 +284,7 @@ export default async function PaymentsPage({
                 <TableRow>
                   <TableHeaderCell>Created</TableHeaderCell>
                   <TableHeaderCell>Released</TableHeaderCell>
-                  <TableHeaderCell className="text-right">
-                    Amount
-                  </TableHeaderCell>
+                  <TableHeaderCell className="text-right">Amount</TableHeaderCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -273,9 +294,7 @@ export default async function PaymentsPage({
                       {formatDateTime(entry.createdAt)}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {entry.releasedAt
-                        ? formatDateTime(entry.releasedAt)
-                        : "Held"}
+                      {entry.releasedAt ? formatDateTime(entry.releasedAt) : "Held"}
                     </TableCell>
                     <TableCell className="text-right">
                       <Money minor={entry.amountMinor} currency={currency} />
