@@ -64,6 +64,24 @@ export function env(): ServerEnv {
   const parsed = serverSchema.safeParse(process.env);
 
   if (!parsed.success) {
+    // During static build/collection, allow missing runtime env; we'll throw on first request
+    if (process.env.NEXT_PHASE === 'phase-production-build' || process.env.NEXT_PHASE === 'phase-export' || process.env.NEXT_PHASE === 'phase-production-server' || process.env.NODE_ENV === 'production' && !process.env.RUNTIME_BUILD) {
+      // Return defaults for build-time only
+      return serverSchema.parse({
+        DATABASE_URL: process.env.DATABASE_URL ?? 'postgresql://placeholder/placeholder',
+        DIRECT_DATABASE_URL: process.env.DIRECT_DATABASE_URL,
+        APP_ENV: process.env.APP_ENV ?? 'development',
+        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+        AUTH_SECRET: process.env.AUTH_SECRET ?? 'x'.repeat(32),
+        AUTH_URL: process.env.AUTH_URL,
+        STORAGE_DRIVER: process.env.STORAGE_DRIVER ?? 'local',
+        STORAGE_REGION: process.env.STORAGE_REGION ?? 'af-south-1',
+        STORAGE_SIGNED_URL_TTL: process.env.STORAGE_SIGNED_URL_TTL ?? '300',
+        LOG_LEVEL: process.env.LOG_LEVEL ?? 'info',
+        SIGNING_PROVIDER: process.env.SIGNING_PROVIDER ?? 'disabled',
+        NOTIFICATIONS_DRIVER: process.env.NOTIFICATIONS_DRIVER ?? 'mock',
+      });
+    }
     const problems = parsed.error.issues
       .map((issue) => `  • ${issue.path.join(".")}: ${issue.message}`)
       .join("\n");
