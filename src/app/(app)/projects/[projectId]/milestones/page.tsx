@@ -10,7 +10,9 @@ import {
 import { Stat } from "@/components/ui/stat";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatDate } from "@/lib/date";
+import { loadProjectActor } from "@/modules/access/context";
 import { getProjectById, listMilestones } from "@/modules/projects/queries";
+import { MilestoneStatusForm } from "./status-form";
 
 export default async function MilestonesPage({
   params,
@@ -18,11 +20,13 @@ export default async function MilestonesPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const [project, milestones] = await Promise.all([
+  const [actor, project, milestones] = await Promise.all([
+    loadProjectActor(projectId),
     getProjectById(projectId),
     listMilestones(projectId),
   ]);
   const currency = project?.currency ?? "KES";
+  const canUpdate = (actor?.can("issue_certificate") || actor?.can("record_payment")) ?? false;
 
   const total = milestones.reduce((sum, row) => sum + row.amountMinor, 0);
   const paid = milestones
@@ -52,6 +56,7 @@ export default async function MilestonesPage({
             <TableHeaderCell>Target</TableHeaderCell>
             <TableHeaderCell className="text-right">Amount</TableHeaderCell>
             <TableHeaderCell>Status</TableHeaderCell>
+            {canUpdate ? <TableHeaderCell>Actions</TableHeaderCell> : null}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -71,6 +76,15 @@ export default async function MilestonesPage({
               <TableCell>
                 <StatusBadge status={milestone.status} />
               </TableCell>
+              {canUpdate ? (
+                <TableCell>
+                  <MilestoneStatusForm
+                    projectId={projectId}
+                    milestoneId={milestone.id}
+                    currentStatus={milestone.status}
+                  />
+                </TableCell>
+              ) : null}
             </TableRow>
           ))}
         </TableBody>
